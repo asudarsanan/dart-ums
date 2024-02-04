@@ -3,6 +3,7 @@ package com.dart.service;
 import com.dart.dao.UserRepository;
 import com.dart.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +60,16 @@ public class UserService {
         return existingUser != null ? existingUser.getPassword() : null;
     }
 
+    @Transactional
+    public boolean authenticateUser(String username, String password) {
+        User user = userRepository.findByEmail(username);
+        if (user != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            // Use matches method to compare raw password with hashed password
+            return passwordEncoder.matches(password, user.getPassword()); // Passwords match, user is authenticated
+        }
+        return false; // Either user not found or passwords don't match
+    }
 
 
     // get password for user
