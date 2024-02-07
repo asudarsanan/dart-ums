@@ -3,6 +3,8 @@ package com.dart.service;
 import com.dart.dao.UserRepository;
 import com.dart.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,15 @@ public class UserService {
     //add new user
     @Transactional
     public User createUser(User user){
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            // Handle duplicate entry error
+            // For example, you can log the error or throw a custom exception
+            // You can also return null or some indicator to the caller indicating failure
+            // In this example, let's throw a custom exception
+            throw new DuplicateKeyException("User with the same details already exists.");
+        }
 
     }
     //get the user
@@ -65,11 +75,12 @@ public class UserService {
         User user = userRepository.findByEmail(username);
         if (user != null) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            // Use matches method to compare raw password with hashed password
             return passwordEncoder.matches(password, user.getPassword()); // Passwords match, user is authenticated
         }
         return false; // Either user not found or passwords don't match
     }
+
+
 
 
     // get password for user

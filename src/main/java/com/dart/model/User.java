@@ -5,12 +5,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 @Entity
-@Table(name = "\"user\"") // Escaping "user" as an identifier
+@Table(name = "\"dart_identity\"") // Escaping "user" as an identifier
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
     private String username;
+    @Column(unique = true)
     private String email;
     private String password;
 
@@ -37,6 +40,14 @@ public class User {
         return email;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -48,6 +59,9 @@ public class User {
     public void setPassword(String password) {
         // added hashing for the password.
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        System.out.println("Before Encoding "+password);
+        System.out.println("After Encoding "+passwordEncoder.encode(password));
+        System.out.println("After Encoding "+passwordEncoder.encode(password));
         this.password = passwordEncoder.encode(password);
     }
 }
