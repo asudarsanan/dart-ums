@@ -54,5 +54,12 @@ public class UserController {
     }
 
 
+//    @PostMapping("/role")
+//    public ResponseEntity<String> createRole(@RequestBody Role role) {
+//        userService.updateUserRole(role);
+//        return ResponseEntity.ok("Role saved successfully");
+//    }
+
+
 
 }

@@ -1,6 +1,8 @@
 package com.dart.service;
 
+import com.dart.dao.RoleRepository;
 import com.dart.dao.UserRepository;
+import com.dart.model.Role;
 import com.dart.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+
 
     }
 
@@ -23,6 +28,17 @@ public class UserService {
     @Transactional
     public User createUser(User user){
         try {
+            // Retrieve the role based on the role name
+            Role role = roleRepository.findByRoleName(user.getRole().getRoleName());
+            if (role != null) {
+                user.setRole(role);
+                userRepository.save(user);
+            } else {
+                // If the role does not exist, handle the error accordingly
+                throw new RuntimeException("Role not found: " + user.getRole());
+            }
+
+            userRepository.save(user);
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             // Handle duplicate entry error
@@ -79,7 +95,6 @@ public class UserService {
         }
         return false; // Either user not found or passwords don't match
     }
-
 
 
 
