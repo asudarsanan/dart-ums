@@ -7,55 +7,64 @@ import com.dart.model.User;
 import com.dart.service.RoleService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Optional;
+import java.util.Date;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
-@ExtendWith(MockitoExtension.class)
+
+@SpringBootTest
+@ActiveProfiles("test")
 public class RoleServiceTest {
-    @Mock
-    private UserRepository userRepository;
 
     @Mock
-    private RoleRepository roleRepository;
+    private UserRepository userMockRepository;
+
+    @Mock
+    private RoleRepository roleMockRepository;
 
     @InjectMocks
     private RoleService roleService;
 
     @Test
     public void testUpdateUserRole_Success() {
-        // Mock data
-        User existingUser = new User();
-        existingUser.setId(1L);
-        Role existingRole = new Role();
-        existingRole.setId(1L);
-        existingRole.setRoleName("Role1");
-        existingUser.setRole(existingRole);
-        Role newRole = new Role();
-        newRole.setId(2L);
-        newRole.setRoleName("NewRole");
+        // Prepare mock data
+        String email = "user@example.com";
+        String roleName = "ADMIN";
+        User existingUser = new User("username", email, "password");
+        Role existingRole = new Role("USER");
+        Role newRole = new Role(roleName);
+        // Optionally set other fields as needed
+        existingUser.setAddress("123 Main St");
+        existingUser.setPhoneNumber("1234567890");
+        existingUser.setCreatedAt(new Date()); // Set timestamps if required
+//        userMockRepository.save(existingUser);
 
+
+        existingUser.setRole(existingRole);
 
         // Mock repository behavior
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-        Mockito.when(roleRepository.findByRoleName("NewRole")).thenReturn(newRole);
+        Mockito.when(userMockRepository.findByEmail(email)).thenReturn(existingUser);
+        Mockito.when(roleMockRepository.findByRoleName(roleName)).thenReturn(newRole);
+
+//        System.out.println((userMockRepository.findByEmail(email)).getEmail());
 
         // Test
-        User updatedUser = roleService.updateUserRole(1L, "NewRole");
+        User updatedUser = roleService.updateUserRole(email, roleName);
 
         // Verify repository method calls
-        verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).save(existingUser);
+        verify(userMockRepository, times(1)).findByEmail(email);
+        verify(roleMockRepository, times(1)).findByRoleName(roleName);
+        verify(userMockRepository, times(1)).save(existingUser);
 
         // Assertions
-        Assertions.assertEquals("NewRole", existingUser.getRole().getRoleName());
+        Assertions.assertEquals(roleName, existingUser.getRole().getRoleName());
     }
-
 }

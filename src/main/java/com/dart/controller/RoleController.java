@@ -14,10 +14,10 @@ public class RoleController {
     public RoleController(RoleService roleService) {
         this.roleService = roleService;
     }
-    @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @RequestParam String roleName) {
+    @PutMapping("/{email}")
+    public ResponseEntity<?> updateUserRole(@PathVariable String email, @RequestParam String roleName) {
         try {
-            User updatedUser = roleService.updateUserRole(userId, roleName);
+            User updatedUser = roleService.updateUserRole(email, roleName);
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

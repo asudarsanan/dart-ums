@@ -24,9 +24,9 @@ public class RoleService {
 
     }
     @Transactional
-    public User updateUserRole(Long userId, String roleName) {
+    public User updateUserRole(String email, String roleName) {
         try {
-            User existingUser = userRepository.findById(userId).orElse(null);
+            User existingUser = userRepository.findByEmail(email);
             if (existingUser != null) {
                 Role existingRole = existingUser.getRole();
                 if (existingRole != null && existingRole.getRoleName().equals(roleName)) {
@@ -41,7 +41,7 @@ public class RoleService {
                 existingUser.setRole(newRole);
                 return userRepository.save(existingUser);
             } else {
-                throw new RuntimeException("User not found: " + userId);
+                throw new RuntimeException("User not found: " + email);
             }
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("User doesn't exist");
